@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+# ffmpeg for cutting; curl/unzip to install Deno (JavaScript runtime that yt-dlp needs for YouTube)
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg curl unzip ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh -s -- -y
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -U -r requirements.txt
+COPY . .
+
+# Hugging Face Spaces runs as a non-root user, so the job folder must be writable
+RUN mkdir -p /app/jobs && chmod 777 /app/jobs
+ENV PORT=7860
+EXPOSE 7860
+CMD ["gunicorn", "-w", "1", "--threads", "8", "--timeout", "600", "-b", "0.0.0.0:7860", "app:app"]

@@ -1,0 +1,6 @@
+flask>=3.0
+gunicorn>=22.0
+# [default] includes yt-dlp-ejs, needed for YouTube. Keep yt-dlp updated (YouTube changes often).
+yt-dlp[default]
+# optional, for videos without subtitles (slow on free CPU):
+# faster-whisper
